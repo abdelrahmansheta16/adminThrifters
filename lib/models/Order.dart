@@ -6,7 +6,7 @@ import 'dart:convert';
 
 import 'package:admin_thrifters/models/Product.dart';
 
-import '../utils.dart';
+import 'package:admin_thrifters/utils.dart';
 import 'Address.dart';
 
 List<Order> productFromJson(String str) =>

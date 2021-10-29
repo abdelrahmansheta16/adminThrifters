@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:admin_thrifters/FirebaseAPI/CategoryAPI.dart';
 import 'package:admin_thrifters/Screens/Analysis/Dashboards.dart';
 import 'package:admin_thrifters/Screens/Analysis/LiveView.dart';
 import 'package:admin_thrifters/Screens/Customers.dart';
@@ -10,7 +11,8 @@ import 'package:admin_thrifters/Screens/Marketing/Overview.dart';
 import 'package:admin_thrifters/Screens/Orders/AbandonedCheckouts.dart';
 import 'package:admin_thrifters/Screens/Orders/Drafts.dart';
 import 'package:admin_thrifters/Screens/Orders/Orders.dart';
-import 'package:admin_thrifters/Screens/Products/AddProduct..dart';
+import 'package:admin_thrifters/Screens/Products/EditProducts.dart';
+import 'package:admin_thrifters/Screens/Products/ProductForm.dart';
 import 'package:admin_thrifters/Screens/Products/AllProducts.dart';
 import 'package:admin_thrifters/Screens/Products/Collections.dart';
 import 'package:admin_thrifters/Screens/Products/GiftCards.dart';
@@ -25,9 +27,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 
 import 'Screens/Analysis/Reports.dart';
 import 'Screens/MainScreen.dart';
+import 'Screens/Products/AddProduct.dart';
 
 String initialRoute;
 
@@ -47,7 +51,12 @@ Future main() async {
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MyApp(),
+      home: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => CategoryProvider()),
+        ],
+        child: MyApp(),
+      ),
     ),
   );
 }
@@ -169,8 +178,9 @@ class _MyAppState extends State<MyApp> {
         AbandonedCheckouts.id: (context) => AbandonedCheckouts(),
         Drafts.id: (context) => Drafts(),
         Orders.id: (context) => Orders(),
-        AddProduct.id: (context) => AddProduct(),
         AllProducts.id: (context) => AllProducts(),
+        EditProducts.id: (context) => EditProducts(),
+        AddProduct.id: (context) => AddProduct(),
         Collection.id: (context) => Collection(),
         GiftCards.id: (context) => GiftCards(),
         Inventory.id: (context) => Inventory(),

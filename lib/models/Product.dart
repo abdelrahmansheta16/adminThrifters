@@ -4,7 +4,8 @@
 
 import 'dart:convert';
 
-import '../utils.dart';
+import 'package:admin_thrifters/models/Category.dart';
+import 'package:admin_thrifters/utils.dart';
 
 List<Product> productFromJson(String str) =>
     List<Product>.from(json.decode(str).map((x) => Product.fromJson(x)));
@@ -17,8 +18,8 @@ class Product {
     this.productId,
     this.title,
     this.images,
+    this.categories,
     this.description,
-    this.category,
     this.brand,
     this.color,
     this.type,
@@ -37,8 +38,8 @@ class Product {
   String productId;
   String title;
   List<String> images;
+  List<Category> categories;
   String description;
-  String category;
   String brand;
   List<String> color;
   String type;
@@ -48,7 +49,7 @@ class Product {
   bool isVisible;
   DateTime publishedAt;
   DateTime updatedAt;
-  double price;
+  num price;
   bool inventoryManagement = true;
   bool inventoryPolicy = true;
   bool taxable;
@@ -59,8 +60,11 @@ class Product {
         images: json["images"] != null
             ? List<String>.from(json["images"].map((x) => x))
             : <String>[],
+        categories: json["categories"] != null
+            ? List<Category>.from(
+                json["categories"].map((x) => Category.fromJson(x)))
+            : <Product>[],
         description: json["description"],
-        category: json["category"],
         brand: json["brand"],
         color: json["color"] != null
             ? List<String>.from(json["color"].map((x) => x))
@@ -74,7 +78,7 @@ class Product {
         isVisible: json["isVisible"],
         publishedAt: Utils.toDateTime(json["publishedAt"]),
         updatedAt: Utils.toDateTime(json["updatedAt"]),
-        price: json["price"].toDouble(),
+        price: json["price"],
         inventoryManagement: json["inventoryManagement"],
         inventoryPolicy: json["inventoryPolicy"],
         taxable: json["taxable"],
@@ -86,8 +90,10 @@ class Product {
         "images": images != null
             ? List<String>.from(images.map((x) => x))
             : <String>[],
+        "categories": categories != null
+            ? List<dynamic>.from(categories.map((x) => x.toJson()))
+            : <Category>[],
         "description": description,
-        "category": category,
         "brand": brand,
         "color":
             color != null ? List<String>.from(color.map((x) => x)) : <String>[],

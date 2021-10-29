@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:admin_thrifters/customUI/buildDrawer.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-import '../flutter_flow/flutter_flow_theme.dart';
-
 import 'buildDrawer.dart';
 
 class CurrentScreen extends StatefulWidget {
@@ -60,7 +58,7 @@ class _CurrentScreenState extends State<CurrentScreen> {
           centerTitle: true,
           elevation: 1,
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xffe5e5e5),
         drawer: buildDrawer(),
         body: widget.child,
       ),

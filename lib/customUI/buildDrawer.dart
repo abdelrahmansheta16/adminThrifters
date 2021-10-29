@@ -1,7 +1,3 @@
-import 'package:admin_thrifters/Screens/Customers.dart';
-import 'package:admin_thrifters/Screens/MainScreen.dart';
-import 'package:admin_thrifters/Screens/Products/AddProduct..dart';
-import 'package:admin_thrifters/Screens/Products/Inventory.dart';
 import 'package:flutter/material.dart';
 
 import 'package:admin_thrifters/Screens/Analysis/Dashboards.dart';
@@ -18,6 +14,9 @@ import 'package:admin_thrifters/Screens/Products/AllProducts.dart';
 import 'package:admin_thrifters/Screens/Products/Collections.dart';
 import 'package:admin_thrifters/Screens/Products/GiftCards.dart';
 import 'package:admin_thrifters/Screens/Products/Transfers.dart';
+import 'package:admin_thrifters/Screens/Customers.dart';
+import 'package:admin_thrifters/Screens/MainScreen.dart';
+import 'package:admin_thrifters/Screens/Products/Inventory.dart';
 
 class buildDrawer extends StatefulWidget {
   const buildDrawer({Key key}) : super(key: key);
@@ -36,7 +35,6 @@ class _buildDrawerState extends State<buildDrawer> {
   Widget build(BuildContext context) {
     return Container(
       child: Drawer(
-        backgroundColor: Color(0xfff7f7f7),
         elevation: 16,
         child: LayoutBuilder(
           builder: (context, constraint) {
@@ -130,16 +128,6 @@ class _buildDrawerState extends State<buildDrawer> {
                               leading: SizedBox(),
                               title: Text(
                                 'All Products',
-                                textAlign: TextAlign.left,
-                              )),
-                          ListTile(
-                              onTap: () {
-                                Navigator.pushNamedAndRemoveUntil(
-                                    context, AddProduct.id, (route) => false);
-                              },
-                              leading: SizedBox(),
-                              title: Text(
-                                'Add Products',
                                 textAlign: TextAlign.left,
                               )),
                           ListTile(

@@ -8,7 +8,7 @@ import 'package:admin_thrifters/models/Address.dart';
 import 'package:admin_thrifters/models/Order.dart';
 import 'package:admin_thrifters/models/Product.dart';
 
-import '../utils.dart';
+import 'package:admin_thrifters/utils.dart';
 
 List<USER> productFromJson(String str) =>
     List<USER>.from(json.decode(str).map((x) => USER.fromJson(x)));

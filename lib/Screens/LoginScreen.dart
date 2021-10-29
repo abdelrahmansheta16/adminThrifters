@@ -1,12 +1,10 @@
-import 'package:admin_thrifters/FirebaseAPI/adminAPI.dart';
 import 'package:admin_thrifters/Screens/MainScreen.dart';
+import 'package:admin_thrifters/flutter_flow/flutter_flow_theme.dart';
+import 'package:admin_thrifters/flutter_flow/flutter_flow_widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-import '../flutter_flow/flutter_flow_theme.dart';
-import '../flutter_flow/flutter_flow_util.dart';
-import '../flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
