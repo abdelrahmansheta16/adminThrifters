@@ -62,7 +62,7 @@ class ProductAPI {
     //     searchCategory(category, product, names);
     //   });
     // });
-    await ProductsRef.ad(product);
+    await ProductsRef.add(product);
   }
 
   static Future setProducts({Product product}) async {
