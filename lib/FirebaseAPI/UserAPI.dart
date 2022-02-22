@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:admin_thrifters/models/Address.dart';
-import 'package:admin_thrifters/models/Product.dart';
-import 'package:admin_thrifters/models/User.dart';
+import 'package:thrifters_classes/thrifters_classes.dart';
 
 class UserAPI {
   static final FirebaseAuth auth = FirebaseAuth.instance;
@@ -91,7 +89,7 @@ class UserAPI {
   static double subtotal(List<dynamic> products) {
     double currentPrice = 0;
     products.forEach((product) {
-      currentPrice += product.price;
+      currentPrice += product.beforePrice;
     });
     return currentPrice;
   }
@@ -99,7 +97,7 @@ class UserAPI {
   static double tax(List<dynamic> products) {
     double currentPrice = 0;
     products.forEach((product) {
-      currentPrice += product.price;
+      currentPrice += product.beforePrice;
     });
     return currentPrice * 0.14;
   }
@@ -123,6 +121,6 @@ class UserAPI {
           fromFirestore: (snapshot, _) => Address.fromJson(snapshot.data()),
           toFirestore: (address, _) => address.toJson(),
         );
-    UsersRef.doc(address.AddressID).delete();
+    UsersRef.doc(address.addressID).delete();
   }
 }

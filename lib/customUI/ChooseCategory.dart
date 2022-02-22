@@ -1,7 +1,7 @@
-import 'package:admin_thrifters/FirebaseAPI/CategoryAPI.dart';
+import 'package:admin_thrifters/FirebaseAPI/ProductProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:admin_thrifters/flutter_flow/flutter_flow_theme.dart';
-import 'package:admin_thrifters/models/Category.dart';
+import 'package:thrifters_classes/thrifters_classes.dart';
 
 class ChooseCategory extends StatefulWidget {
   final Category category;
@@ -15,7 +15,14 @@ class ChooseCategory extends StatefulWidget {
 }
 
 class _ChooseCategoryState extends State<ChooseCategory> {
-  List<Category> selectedCategories = [];
+  Category selectedCategory;
+  List<String> selectedPath = [];
+  @override
+  void initState() {
+    selectedPath.insert(widget.category.level + 1, widget.category.name);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
@@ -35,21 +42,35 @@ class _ChooseCategoryState extends State<ChooseCategory> {
   Widget buildExpansionTile(Category currentCategory) {
     if (currentCategory.subCategories.length == 0) {
       return ListTile(
-        selected: currentCategory.isSelected,
+        selected: currentCategory == selectedCategory,
         onTap: () {
           setState(() {
-            currentCategory.isSelected = !currentCategory.isSelected;
+            // updateSelected(widget.category);
+            // selectedCategory.isSelected = false;
+            selectedCategory = currentCategory;
+            // currentCategory.isSelected = !currentCategory.isSelected;
+            // if (currentCategory.isSelected) {
+            if (selectedPath.length > currentCategory.level + 1) {
+              selectedPath.removeAt(currentCategory.level + 1);
+            }
+            selectedPath.insert(
+                currentCategory.level + 1, currentCategory.name);
+            // }
+            print(selectedPath);
           });
-          getSelectedCategories();
+          ProductProvider.of(context, listen: false)
+              .updateCategories(selectedPath);
+          // getSelectedCategories();
         },
         title: Padding(
-          padding: EdgeInsets.only(left: getPadding(currentCategory)),
+          padding: EdgeInsets.only(left: getPadding(currentCategory.level)),
           child: Text(
             currentCategory.name,
-            style: getStyle(currentCategory),
+            style: getStyle(
+                currentCategory.level, currentCategory == selectedCategory),
           ),
         ),
-        trailing: currentCategory.isSelected
+        trailing: currentCategory == selectedCategory
             ? Icon(
                 Icons.check_sharp,
                 color: Color(0xFF1D9E6A),
@@ -59,10 +80,11 @@ class _ChooseCategoryState extends State<ChooseCategory> {
     }
     return ExpansionTile(
       title: Padding(
-        padding: EdgeInsets.only(left: getPadding(currentCategory)),
+        padding: EdgeInsets.only(left: getPadding(currentCategory.level)),
         child: Text(
           currentCategory.name,
-          style: getStyle(currentCategory),
+          style: getStyle(
+              currentCategory.level, currentCategory == selectedCategory),
         ),
       ),
       trailing: currentCategory.subCategories.length == 0
@@ -71,24 +93,78 @@ class _ChooseCategoryState extends State<ChooseCategory> {
               ? Icon(Icons.keyboard_arrow_up_sharp)
               : Icon(Icons.keyboard_arrow_down_sharp),
       children: List.generate(currentCategory.subCategories.length, (index) {
-        Category subCategory = currentCategory.subCategories[index];
-        if (subCategory.subCategories.length == 0) {
+        if (index == 0) {
           return ListTile(
-            selected: subCategory.isSelected,
+            selected: currentCategory == selectedCategory,
             onTap: () {
               setState(() {
-                subCategory.isSelected = !subCategory.isSelected;
+                // updateSelected(widget.category);
+                // subCategory.isSelected = !subCategory.isSelected;
+                selectedCategory = currentCategory;
+                // if (subCategory.isSelected) {
+                if (selectedPath.length > currentCategory.level + 1) {
+                  selectedPath.removeAt(currentCategory.level + 1);
+                }
+                selectedPath.insert(
+                    currentCategory.level + 1, currentCategory.name);
+                // }
+                if (selectedPath.length > currentCategory.level + 2) {
+                  selectedPath.removeRange(
+                      currentCategory.level + 2, selectedPath.length);
+                }
+                print(selectedPath);
               });
-              getSelectedCategories();
+              ProductProvider.of(context, listen: false)
+                  .updateCategories(selectedPath);
+              // getSelectedCategories();
             },
             title: Padding(
-              padding: EdgeInsets.only(left: getPadding(subCategory)),
+              padding:
+                  EdgeInsets.only(left: getPadding(currentCategory.level + 1)),
               child: Text(
-                subCategory.name,
-                style: getStyle(subCategory),
+                'All ${currentCategory.name}',
+                style: getStyle(currentCategory.level + 1,
+                    currentCategory == selectedCategory),
               ),
             ),
-            trailing: subCategory.isSelected
+            trailing: currentCategory == selectedCategory
+                ? Icon(
+                    Icons.check_sharp,
+                    color: Color(0xFF1D9E6A),
+                  )
+                : Icon(Icons.keyboard_arrow_right_sharp),
+          );
+        }
+        Category subCategory = currentCategory.subCategories[index - 1];
+        if (subCategory.subCategories.length == 0) {
+          return ListTile(
+            selected: subCategory == selectedCategory,
+            onTap: () {
+              setState(() {
+                // updateSelected(widget.category);
+                // subCategory.isSelected = !subCategory.isSelected;
+                selectedCategory = subCategory;
+                // if (subCategory.isSelected) {
+                if (selectedPath.length > subCategory.level + 1) {
+                  selectedPath.removeAt(subCategory.level + 1);
+                }
+                selectedPath.insert(subCategory.level + 1, subCategory.name);
+                // }
+                print(selectedPath);
+              });
+              ProductProvider.of(context, listen: false)
+                  .updateCategories(selectedPath);
+              // getSelectedCategories();
+            },
+            title: Padding(
+              padding: EdgeInsets.only(left: getPadding(subCategory.level)),
+              child: Text(
+                subCategory.name,
+                style: getStyle(
+                    subCategory.level, subCategory == selectedCategory),
+              ),
+            ),
+            trailing: subCategory == selectedCategory
                 ? Icon(
                     Icons.check_sharp,
                     color: Color(0xFF1D9E6A),
@@ -101,13 +177,20 @@ class _ChooseCategoryState extends State<ChooseCategory> {
       onExpansionChanged: (bool expanded) {
         setState(() {
           currentCategory.isExpanded = expanded;
+          if (currentCategory.isExpanded) {
+            if (selectedPath.length > currentCategory.level + 1) {
+              selectedPath.removeAt(currentCategory.level + 1);
+            }
+            selectedPath.insert(
+                currentCategory.level + 1, currentCategory.name);
+          }
         });
       },
     );
   }
 
-  double getPadding(Category currentCategory) {
-    switch (currentCategory.level) {
+  double getPadding(int currentCategoryLevel) {
+    switch (currentCategoryLevel) {
       case -1:
         return 0;
         break;
@@ -126,11 +209,11 @@ class _ChooseCategoryState extends State<ChooseCategory> {
     return 0;
   }
 
-  TextStyle getStyle(Category currentCategory) {
-    switch (currentCategory.level) {
+  TextStyle getStyle(int currentCategoryLevel, bool selected) {
+    switch (currentCategoryLevel) {
       case -1:
         return FlutterFlowTheme.bodyText1.override(
-          color: currentCategory.isSelected ? Color(0xFF1D9E6A) : Colors.black,
+          color: selected ? Color(0xFF1D9E6A) : Colors.black,
           fontFamily: 'Poppins',
           fontWeight: FontWeight.w600,
           fontSize: 18,
@@ -138,7 +221,7 @@ class _ChooseCategoryState extends State<ChooseCategory> {
         break;
       case 0:
         return FlutterFlowTheme.bodyText1.override(
-          color: currentCategory.isSelected ? Color(0xFF1D9E6A) : Colors.black,
+          color: selected ? Color(0xFF1D9E6A) : Colors.black,
           fontFamily: 'Poppins',
           fontWeight: FontWeight.w600,
           fontSize: 18,
@@ -149,8 +232,7 @@ class _ChooseCategoryState extends State<ChooseCategory> {
           fontFamily: 'Poppins',
           fontWeight: FontWeight.w600,
           fontSize: 14,
-          color:
-              currentCategory.isSelected ? Color(0xFF1D9E6A) : Colors.black38,
+          color: selected ? Color(0xFF1D9E6A) : Colors.black38,
         );
         break;
       case 2:
@@ -158,7 +240,7 @@ class _ChooseCategoryState extends State<ChooseCategory> {
           fontFamily: 'Poppins',
           fontWeight: FontWeight.w400,
           fontSize: 14,
-          color: currentCategory.isSelected ? Color(0xFF1D9E6A) : Colors.black,
+          color: selected ? Color(0xFF1D9E6A) : Colors.black,
         );
         break;
       default:
@@ -173,29 +255,48 @@ class _ChooseCategoryState extends State<ChooseCategory> {
     );
   }
 
-  void getSelectedCategories() {
-    selectedCategories.clear();
-    extractSelected(widget.category);
-    CategoryProvider.of(context, listen: false).updateList(selectedCategories);
-  }
+  // void getSelectedCategories() {
+  //   selectedCategories.clear();
+  //   extractSelected(widget.category);
+  //   ProductProvider.of(context, listen: false)
+  //       .updateCategories(selectedCategories);
+  // }
+  //
+  // void extractSelected(Category category) {
+  //   if (category.isSelected) {
+  //     selectedCategories.add(category);
+  //     print(category.name);
+  //   }
+  //   if (category.subCategories.length != 0) {
+  //     category.subCategories.forEach((first) {
+  //       if (first.isSelected) {
+  //         selectedCategories.add(first);
+  //         print(first.name);
+  //       }
+  //       if (first.subCategories.length != 0) {
+  //         first.subCategories.forEach((second) {
+  //           extractSelected(second);
+  //         });
+  //       }
+  //     });
+  //   }
+  // }
 
-  void extractSelected(Category category) {
-    if (category.isSelected) {
-      selectedCategories.add(category);
-      print(category.name);
-    }
-    if (category.subCategories.length != 0) {
-      category.subCategories.forEach((first) {
-        if (first.isSelected) {
-          selectedCategories.add(first);
-          print(first.name);
-        }
-        if (first.subCategories.length != 0) {
-          first.subCategories.forEach((second) {
-            extractSelected(second);
-          });
-        }
-      });
-    }
-  }
+  // void updateSelected(Category category) {
+  //   setState(() {
+  //     category.isSelected = false;
+  //   });
+  //   if (category.subCategories.length != 0) {
+  //     category.subCategories.forEach((first) {
+  //       setState(() {
+  //         first.isSelected = false;
+  //       });
+  //       if (first.subCategories.length != 0) {
+  //         first.subCategories.forEach((element) {
+  //           updateSelected(element);
+  //         });
+  //       }
+  //     });
+  //   }
+  // }
 }

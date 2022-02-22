@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:admin_thrifters/FirebaseAPI/CategoryAPI.dart';
+import 'package:admin_thrifters/FirebaseAPI/FirebaseMessaging.dart';
+import 'package:admin_thrifters/FirebaseAPI/ProductProvider.dart';
 import 'package:admin_thrifters/Screens/Analysis/Dashboards.dart';
 import 'package:admin_thrifters/Screens/Analysis/LiveView.dart';
 import 'package:admin_thrifters/Screens/Customers.dart';
@@ -12,7 +13,10 @@ import 'package:admin_thrifters/Screens/Orders/AbandonedCheckouts.dart';
 import 'package:admin_thrifters/Screens/Orders/Drafts.dart';
 import 'package:admin_thrifters/Screens/Orders/Orders.dart';
 import 'package:admin_thrifters/Screens/Products/EditProducts.dart';
-import 'package:admin_thrifters/Screens/Products/ProductForm.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:admin_thrifters/Screens/Products/AllProducts.dart';
 import 'package:admin_thrifters/Screens/Products/Collections.dart';
 import 'package:admin_thrifters/Screens/Products/GiftCards.dart';
@@ -20,24 +24,38 @@ import 'package:admin_thrifters/Screens/Products/Inventory.dart';
 import 'package:admin_thrifters/Screens/Products/Transfers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:admin_thrifters/Screens/LoginScreen.dart';
-import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
+// Import the generated file
+// import 'firebase_options.dart';
 import 'Screens/Analysis/Reports.dart';
 import 'Screens/MainScreen.dart';
 import 'Screens/Products/AddProduct.dart';
 
 String initialRoute;
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+  print('Handling a background message ${message.messageId}');
+}
+
+/// Create a [AndroidNotificationChannel] for heads up notifications
+AndroidNotificationChannel channel;
+
+/// Initialize the [FlutterLocalNotificationsPlugin] package.
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+      // options: DefaultFirebaseOptions.currentPlatform,
+      );
   FirebaseAuth.instance.authStateChanges().listen((user) {
     if (user == null) {
       initialRoute = LoginScreen.id;
@@ -45,6 +63,40 @@ Future main() async {
       initialRoute = MainScreen.id;
     }
   });
+
+  // Set the background messaging handler early on, as a named top-level function
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  if (!kIsWeb) {
+    channel = const AndroidNotificationChannel(
+      'high_importance_channel', // id
+      'High Importance Notifications', // title
+      'This channel is used for important notifications.', // description
+      importance: Importance.max,
+      ledColor: Colors.teal,
+      enableLights: true,
+    );
+
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+    /// Create an Android Notification Channel.
+    ///
+    /// We use this channel in the `AndroidManifest.xml` file to override the
+    /// default FCM channel to enable heads up notifications.
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+
+    /// Update the iOS foreground notification presentation options to allow
+    /// heads up notifications.
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+  }
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
       overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
 
@@ -53,7 +105,7 @@ Future main() async {
       debugShowCheckedModeBanner: false,
       home: MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (context) => CategoryProvider()),
+          ChangeNotifierProvider(create: (context) => ProductProvider()),
         ],
         child: MyApp(),
       ),
@@ -72,7 +124,6 @@ class _MyAppState extends State<MyApp> {
   StreamSubscription<ConnectivityResult> _connectivitySubscription;
   final _messengerKey = GlobalKey<ScaffoldMessengerState>();
   bool allowClose = false;
-
   DateTime get timeBackPressed => DateTime.now();
 
   Widget _buildPopupDialog(BuildContext context) {
@@ -97,7 +148,53 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    initConnectivity();
+    // NotificationAPI.init();
+    // NotificationAPI.requestPermissions();
+    // listenNotifications();
+    FirebaseMessaging.instance.getToken().then((value) => print(value));
+    BackgroundMessaging.requestPermission();
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('message: ${message.data}');
+      RemoteNotification notification = message.notification;
+      AndroidNotification android = message.notification?.android;
+      if (notification != null && android != null && !kIsWeb) {
+        flutterLocalNotificationsPlugin.show(
+            notification.hashCode,
+            notification.title,
+            notification.body,
+            NotificationDetails(
+              android: AndroidNotificationDetails(
+                channel.id,
+                channel.name,
+                channel.description,
+                // TODO add a proper drawable resource to android, for now using
+                //      one that already exists in example app.
+                // icon: 'launch_background',
+              ),
+            ));
+      }
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('A new onMessageOpenedApp event was published!');
+      // Navigator.pushNamed(
+      //   context,
+      //   Orders.id,
+      // );
+      // arguments: MessageArguments(message, true));
+    });
+
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage message) {
+      print('A new getInitialMessage event was published!');
+      // Navigator.pushNamed(
+      //   context,
+      //   Orders.id,
+      // );
+      // Navigator.pushNamed(context, '/message',
+      //     arguments: MessageArguments(message, true));
+    });
     _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
@@ -153,10 +250,28 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
+    // Order order;
+    // final reference =
+    //     FirebaseFirestore.instance.collection('orders').withConverter<Order>(
+    //           fromFirestore: (snapshot, _) => Order.fromJson(snapshot.data()),
+    //           toFirestore: (order, _) => order.toJson(),
+    //         );
+    // reference.snapshots().listen((event) {
+    //   if (event.docChanges.last.type == DocumentChangeType.added) {
+    //     event.docChanges.forEach((element) {
+    //       order = element.doc.data();
+    //       print(order.orderID);
+    //       NotificationAPI.showNotification(
+    //           title: order.orderID,
+    //           body: order.price.toString(),
+    //           payload: order.paymentMethod);
+    //     });
+    //   }
+    // });
+    // SystemChrome.setPreferredOrientations([
+    //   DeviceOrientation.portraitUp,
+    //   DeviceOrientation.portraitDown,
+    // ]);
     return MaterialApp(
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
@@ -190,4 +305,26 @@ class _MyAppState extends State<MyApp> {
       },
     );
   }
+
+  // void printReceipt(Order data) {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //         builder: (context) => pd.PdfPage(
+  //               data: data.orderID,
+  //             )),
+  //   );
+  // }
+  //
+  // void listenNotifications() {
+  //   NotificationAPI.selectNotificationSubject.stream
+  //       .listen(onClickedNotification);
+  // }
+  //
+  // void onClickedNotification(String payload) {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => Container()),
+  //   );
+  // }
 }

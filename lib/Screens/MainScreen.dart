@@ -1,9 +1,16 @@
+import 'dart:typed_data';
+
 import 'package:admin_thrifters/FirebaseAPI/ProductAPI.dart';
+import 'package:admin_thrifters/FirebaseAPI/ProductProvider.dart';
 import 'package:admin_thrifters/Screens/Home.dart';
 import 'package:admin_thrifters/customUI/CurrentScreen.dart';
 import 'package:admin_thrifters/models/Product.dart';
-
+import 'package:barcode/barcode.dart';
+import 'package:esc_pos_printer/esc_pos_printer.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter/material.dart';
+import 'package:printing/printing.dart';
+import 'package:pdf/pdf.dart';
 
 class MainScreen extends StatefulWidget {
   MainScreen({Key key}) : super(key: key);
@@ -15,6 +22,37 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  @override
+  void initState() {
+    ProductProvider.of(context, listen: false).setCategories();
+    ProductProvider.of(context, listen: false).setBrands();
+    ProductProvider.of(context, listen: false).setSizes();
+    ProductProvider.of(context, listen: false).setPriceRanges();
+    super.initState();
+  }
+  // @override
+  // void initState() {
+  //   var barcode = _generatePdf(format, title);
+  //   Printing.layoutPdf(onLayout: (_) =>barcode.);
+  //   super.initState();
+  // }
+
+  // Future<void> printBarcode() async {
+  //   final profile = await CapabilityProfile.load();
+  //   final printer = NetworkPrinter(PaperSize.mm80, profile);
+  //   final generator = Generator(PaperSize.mm80, profile);
+  //   List<int> bytes = [];
+  //   bytes += generator.barcode(Barcode.upcA([1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 4]));
+  //   final PosPrintResult res = await printer
+  //       .connect('[fe80::b222:7aff:fe9a:70e7%12]:3911', port: 91000);
+  //
+  //   if (res == PosPrintResult.success) {
+  //     // testReceipt(printer);
+  //     printer.disconnect();
+  //   }
+  //
+  //   print('Print result: ${res.msg}');
+  // }
   // @override
   // void initState() {
   //   Product product = Product(

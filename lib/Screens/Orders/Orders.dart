@@ -3,9 +3,7 @@ import 'package:admin_thrifters/FirebaseAPI/UserAPI.dart';
 import 'package:admin_thrifters/customUI/CurrentScreen.dart';
 import 'package:admin_thrifters/customUI/MyProfile.dart';
 import 'package:admin_thrifters/customUI/OrdersTable.dart';
-import 'package:admin_thrifters/flutter_flow/flutter_flow_theme.dart';
-import 'package:admin_thrifters/models/Order.dart';
-import 'package:admin_thrifters/models/User.dart';
+import 'package:thrifters_classes/thrifters_classes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 

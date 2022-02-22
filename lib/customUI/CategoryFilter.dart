@@ -1,14 +1,11 @@
-import 'package:admin_thrifters/FirebaseAPI/CategoryAPI.dart';
-import 'package:admin_thrifters/models/Category.dart';
+import 'package:thrifters_classes/thrifters_classes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:admin_thrifters/FirebaseAPI/ProductAPI.dart';
 import 'package:admin_thrifters/customUi/ChooseCategory.dart';
 
 import '../flutter_flow/flutter_flow_theme.dart';
-import '../flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class CategoryFilter extends StatefulWidget {
   CategoryFilter({

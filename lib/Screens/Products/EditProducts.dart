@@ -1,8 +1,8 @@
 import 'package:admin_thrifters/Screens/MainScreen.dart';
 import 'package:admin_thrifters/Screens/Products/AllProducts.dart';
-import 'package:admin_thrifters/Screens/Products/ProductForm.dart';
+import 'package:admin_thrifters/customUI/ProductForm.dart';
 import 'package:admin_thrifters/flutter_flow/flutter_flow_theme.dart';
-import 'package:admin_thrifters/models/Product.dart';
+import 'package:thrifters_classes/thrifters_classes.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

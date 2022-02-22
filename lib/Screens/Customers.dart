@@ -1,7 +1,7 @@
 import 'package:admin_thrifters/FirebaseAPI/UserAPI.dart';
 import 'package:admin_thrifters/customUI/CurrentScreen.dart';
 import 'package:admin_thrifters/customUI/UsersTable.dart';
-import 'package:admin_thrifters/models/User.dart';
+import 'package:thrifters_classes/thrifters_classes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 

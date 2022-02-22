@@ -1,9 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:admin_thrifters/models/Category.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:admin_thrifters/models/Product.dart';
+import 'package:thrifters_classes/thrifters_classes.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class ProductAPI {
@@ -45,15 +44,22 @@ class ProductAPI {
     return products;
   }
 
-  static Future addProduct({Product product}) async {
-    List<Category> categories = product.categories;
-    List<String> names = categories.map((e) => e.name).toList();
+  static Future<Product> addProduct({Product product}) async {
+    List<String> categories = product.categories;
+    // List<String> names = categories.map((e) => e.name).toList();
     Category category = await CategoryRef.doc('women').get().then((value) {
       return value.data();
     });
-
-    category = searchCategory(category, product, names);
-    CategoryRef.doc('women').set(category);
+    Product newProduct;
+    await ProductsRef.add(product).then((value) {
+      product.productId = value.id;
+      newProduct = product;
+      ProductsRef.doc(value.id).set(product);
+      return null;
+    });
+    // category = searchCategory(category, product, names);
+    // CategoryRef.doc('women').set(category);
+    return newProduct;
     // CategoryRef.get().then((value) {
     //   value.docs.map((DocumentSnapshot document) {
     //     Category category;
@@ -62,7 +68,6 @@ class ProductAPI {
     //     searchCategory(category, product, names);
     //   });
     // });
-    await ProductsRef.add(product);
   }
 
   static Future setProducts({Product product}) async {
@@ -72,10 +77,8 @@ class ProductAPI {
     );
   }
 
-  static void deleteProducts(List<Product> products) {
-    products.forEach((element) async {
-      await ProductsRef.doc(element.productId).delete();
-    });
+  static Future<void> deleteProducts(Product product) async {
+    await ProductsRef.doc(product.productId).delete();
   }
 
   static Stream<QuerySnapshot<Category>> loadCategories() {
@@ -83,23 +86,23 @@ class ProductAPI {
     return categories;
   }
 
-  static Category searchCategory(
-      Category category, Product product, List<String> names) {
-    if (names.contains(category.name)) {
-      String name =
-          names.where((element) => names.contains(category.name)).toString();
-      category.products.add(product);
-    }
-    category.subCategories.forEach((first) {
-      if (names.contains(first.name)) {
-        first.products.add(product);
-      }
-      if (first.subCategories.length != 0) {
-        first.subCategories.forEach((element) {
-          searchCategory(element, product, names);
-        });
-      }
-    });
-    return category;
-  }
+  // static Category searchCategory(
+  //     Category category, Product product, List<String> names) {
+  //   if (names.contains(category.name)) {
+  //     String name =
+  //         names.where((element) => names.contains(category.name)).toString();
+  //     category.products.add(product);
+  //   }
+  //   category.subCategories.forEach((first) {
+  //     if (names.contains(first.name)) {
+  //       first.products.add(product);
+  //     }
+  //     if (first.subCategories.length != 0) {
+  //       first.subCategories.forEach((element) {
+  //         searchCategory(element, product, names);
+  //       });
+  //     }
+  //   });
+  //   return category;
+  // }
 }

@@ -2,11 +2,12 @@ import 'package:admin_thrifters/Screens/Products/EditProducts.dart';
 import 'package:admin_thrifters/flutter_flow/flutter_flow_drop_down_template.dart';
 import 'package:admin_thrifters/flutter_flow/flutter_flow_theme.dart';
 import 'package:admin_thrifters/flutter_flow/flutter_flow_widgets.dart';
-import 'package:admin_thrifters/models/Order.dart';
-import 'package:admin_thrifters/models/Product.dart';
+import 'package:thrifters_classes/thrifters_classes.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:data_table_2/paginated_data_table_2.dart';
 import 'package:flutter/material.dart';
+
+import 'CategoryFilter.dart';
 
 class OrdersTable extends StatefulWidget {
   final List<Order> orders;
@@ -408,7 +409,16 @@ class DTS extends DataTableSource {
         },
         cells: [
           DataCell(
-            Center(child: Text(order.order.orderID)),
+            Center(
+                child: TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CategoryFilter()),
+                );
+              },
+              child: Text(order.order.orderID),
+            )),
           ),
           DataCell(
             Center(child: Text(order.order.status)),

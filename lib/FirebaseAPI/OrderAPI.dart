@@ -2,9 +2,7 @@ import 'package:admin_thrifters/models/User.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:admin_thrifters/FirebaseAPI/UserAPI.dart';
-import 'package:admin_thrifters/models/Address.dart';
-import 'package:admin_thrifters/models/Order.dart';
-import 'package:admin_thrifters/models/Product.dart';
+import 'package:thrifters_classes/thrifters_classes.dart';
 
 class OrderAPI with ChangeNotifier {
   List<Product> products = [];
@@ -29,7 +27,7 @@ class OrderAPI with ChangeNotifier {
     products?.addAll(value);
     Price = 0;
     value.forEach((product) {
-      Price += product.price;
+      Price += product.beforePrice;
     });
     notifyListeners();
   }
@@ -42,7 +40,7 @@ class OrderAPI with ChangeNotifier {
   double getSubtotal(List<Product> products) {
     double subtotal = 0;
     products?.forEach((product) {
-      subtotal += product.price;
+      subtotal += product.beforePrice;
     });
     return subtotal;
   }
