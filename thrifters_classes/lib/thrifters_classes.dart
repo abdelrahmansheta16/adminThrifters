@@ -46,6 +46,7 @@ class Product {
     this.brand,
     this.color,
     this.type,
+    this.status,
     this.size,
     this.isSoldOut,
     this.isBackorder,
@@ -67,6 +68,7 @@ class Product {
   Brand brand;
   List<String> color;
   String type;
+  String status;
   Size size;
   bool isSoldOut;
   bool isBackorder;
@@ -94,6 +96,7 @@ class Product {
             ? List<String>.from(json["color"].map((x) => x))
             : <String>[],
         type: json["type"],
+    status: json["status"],
         size: Size.fromJson(json["size"]),
         isSoldOut: json["isSoldOut"],
         isBackorder: json["isBackorder"],
@@ -121,6 +124,7 @@ class Product {
         "color":
             color != null ? List<String>.from(color.map((x) => x)) : <String>[],
         "type": type,
+    "status": status,
         "size": size.toJson(),
         "isSoldOut": isSoldOut,
         "isBackorder": isBackorder,

@@ -69,12 +69,16 @@ class _ProductFormState extends State<ProductForm> {
   bool isFormEnabled = false;
   th.Brand choosenBrand;
   bool isEditingMode = false;
+  double profit = 0;
+
+
 
   @override
   void initState() {
     super.initState();
     textController1 = TextEditingController();
     textController2 = TextEditingController();
+
     widget.currentProduct?.images?.forEach((imageURL) {
       imagesURL.add(imageURL);
     });
@@ -185,6 +189,7 @@ class _ProductFormState extends State<ProductForm> {
                       Padding(
                         padding: EdgeInsetsDirectional.fromSTEB(15, 15, 15, 15),
                         child: TextFormField(
+                          maxLines: null,
                           controller: descriptionController,
                           obscureText: false,
                           decoration: InputDecoration(
@@ -366,18 +371,39 @@ class _ProductFormState extends State<ProductForm> {
                                         padding: const EdgeInsets.all(8.0),
                                         child: Stack(
                                           children: [
-                                            Container(
-                                              height: 150,
+                                            Image.network(
+                                              imagesURL[index],
                                               width: 150,
-                                              decoration: BoxDecoration(
-                                                color: Color(0xFFEEEEEE),
-                                                image: DecorationImage(
-                                                  fit: BoxFit.cover,
-                                                  image: NetworkImage(
-                                                    imagesURL[index],
+                                              height: 150,
+                                              fit: BoxFit.fill,
+                                              errorBuilder: (BuildContext context,
+                                                  Object exception,
+                                                  StackTrace stackTrace) {
+                                                return Container(
+                                                  width: 100,
+                                                  height: 100,
+                                                );
+                                              },
+                                              loadingBuilder: (BuildContext context,
+                                                  Widget child,
+                                                  ImageChunkEvent loadingProgress) {
+                                                if (loadingProgress == null) {
+                                                  return child;
+                                                }
+                                                return Center(
+                                                  child: CircularProgressIndicator(
+                                                    value: loadingProgress
+                                                        .expectedTotalBytes !=
+                                                        null
+                                                        ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                        loadingProgress
+                                                            .expectedTotalBytes
+                                                        : null,
+                                                    color: Colors.black12,
                                                   ),
-                                                ),
-                                              ),
+                                                );
+                                              },
                                             ),
                                             Positioned(
                                               right: 0,
@@ -480,6 +506,16 @@ class _ProductFormState extends State<ProductForm> {
                               padding: EdgeInsetsDirectional.fromSTEB(
                                   15, 15, 15, 15),
                               child: TextFormField(
+                                onChanged: (string){
+                                  setState(() {
+                                    try {
+                                      profit = double.tryParse(priceController.text)-double.tryParse(costController.text);
+                                    } catch (error) {
+                                      print(error);
+                                      profit = 0; // your default value
+                                    }
+                                  });
+                                },
                                 controller: priceController,
                                 obscureText: false,
                                 decoration: InputDecoration(
@@ -596,6 +632,16 @@ class _ProductFormState extends State<ProductForm> {
                               padding: EdgeInsetsDirectional.fromSTEB(
                                   15, 15, 15, 15),
                               child: TextFormField(
+                                onChanged: (string){
+                                  setState(() {
+                                    try {
+                                      profit = double.tryParse(priceController.text)-double.tryParse(costController.text);
+                                    } catch (error) {
+                                      print(error);
+                                    profit = 0; // your default value
+                                    }
+                                  });
+                                },
                                 controller: costController,
                                 obscureText: false,
                                 decoration: InputDecoration(
@@ -637,24 +683,24 @@ class _ProductFormState extends State<ProductForm> {
                               ),
                             ),
                           ),
-                          Padding(
-                            padding:
-                                EdgeInsetsDirectional.fromSTEB(15, 15, 30, 15),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                Text(
-                                  'Margin',
-                                  style: FlutterFlowTheme.bodyText1.override(
-                                    fontFamily: 'Poppins',
-                                  ),
-                                ),
-                                Container(
-                                  decoration: BoxDecoration(),
-                                )
-                              ],
-                            ),
-                          ),
+                          // Padding(
+                          //   padding:
+                          //       EdgeInsetsDirectional.fromSTEB(15, 15, 30, 15),
+                          //   child: Column(
+                          //     mainAxisSize: MainAxisSize.max,
+                          //     children: [
+                          //       Text(
+                          //         'Margin',
+                          //         style: FlutterFlowTheme.bodyText1.override(
+                          //           fontFamily: 'Poppins',
+                          //         ),
+                          //       ),
+                          //       Container(
+                          //         decoration: BoxDecoration(),
+                          //       )
+                          //     ],
+                          //   ),
+                          // ),
                           Padding(
                             padding:
                                 EdgeInsetsDirectional.fromSTEB(30, 15, 15, 15),
@@ -667,9 +713,8 @@ class _ProductFormState extends State<ProductForm> {
                                     fontFamily: 'Poppins',
                                   ),
                                 ),
-                                Container(
-                                  decoration: BoxDecoration(),
-                                )
+                                Text(profit.toString()),
+                                // Text((int.parse(priceController.text)??0-int.parse(costController.text)??0).toString()??'0'),
                               ],
                             ),
                           ),
@@ -724,7 +769,7 @@ class _ProductFormState extends State<ProductForm> {
                             padding:
                                 EdgeInsetsDirectional.fromSTEB(15, 15, 15, 15),
                             child: FlutterFlowDropDown(
-                              options: ['Draft', 'Active'].toList(),
+                              options: ['Draft', 'Active','Sold'].toList(),
                               onChanged: (val) =>
                                   setState(() => dropDownValue = val),
                               width: 130,
@@ -862,7 +907,7 @@ class _ProductFormState extends State<ProductForm> {
                                   maxHeight: 300,
                                   onFind: (String filter) => getData(filter),
                                   dropdownSearchDecoration: InputDecoration(
-                                    labelText: "choose a user",
+                                    labelText: "choose a brand",
                                     contentPadding:
                                         EdgeInsets.fromLTRB(12, 12, 0, 0),
                                     border: OutlineInputBorder(),
@@ -1187,6 +1232,7 @@ class _ProductFormState extends State<ProductForm> {
                                     ProductProvider.of(context, listen: false)
                                         .selectedCategories,
                                 brand: choosenBrand,
+                                status: dropDownValue,
                                 publishedAt: DateTime.now(),
                                 isVisible: true,
                                 size: ProductProvider.of(context, listen: false)

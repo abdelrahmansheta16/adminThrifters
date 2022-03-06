@@ -13,6 +13,7 @@ import 'package:admin_thrifters/Screens/Orders/AbandonedCheckouts.dart';
 import 'package:admin_thrifters/Screens/Orders/Drafts.dart';
 import 'package:admin_thrifters/Screens/Orders/Orders.dart';
 import 'package:admin_thrifters/Screens/Products/EditProducts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -50,6 +51,7 @@ AndroidNotificationChannel channel;
 
 /// Initialize the [FlutterLocalNotificationsPlugin] package.
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+String adminToken ;
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -66,6 +68,7 @@ Future main() async {
 
   // Set the background messaging handler early on, as a named top-level function
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  adminToken = await FirebaseMessaging.instance.getToken();
 
   if (!kIsWeb) {
     channel = const AndroidNotificationChannel(
@@ -151,6 +154,9 @@ class _MyAppState extends State<MyApp> {
     // NotificationAPI.init();
     // NotificationAPI.requestPermissions();
     // listenNotifications();
+    FirebaseFirestore.instance.collection('admins').doc('YZIQg1bJZ8S9MWQg1RvimE3xmmO2').update({
+      'token':adminToken,
+    });
     FirebaseMessaging.instance.getToken().then((value) => print(value));
     BackgroundMessaging.requestPermission();
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {

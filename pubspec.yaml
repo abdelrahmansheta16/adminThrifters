@@ -27,7 +27,7 @@ dependencies:
   flutter:
     sdk: flutter
   thrifters_classes:
-    path: ../admin_thrifters/thrifters_classes
+    path: ../adminThrifters/thrifters_classes
 
   firebase_core:
   cupertino_icons: ^1.0.2

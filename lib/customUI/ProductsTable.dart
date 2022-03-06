@@ -4,6 +4,7 @@ import 'package:admin_thrifters/Screens/Products/EditProducts.dart';
 import 'package:admin_thrifters/customUI/ProductForm.dart';
 import 'package:admin_thrifters/flutter_flow/flutter_flow_drop_down_template.dart';
 import 'package:admin_thrifters/flutter_flow/flutter_flow_theme.dart';
+import 'package:intl/intl.dart';
 import 'package:thrifters_classes/thrifters_classes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -240,13 +241,13 @@ class _ProductsTableState extends State<ProductsTable> {
                     DataColumn2(
                       label: Center(child: Text('Price')),
                       onSort: (columnIndex, ascending) => sort<num>(
-                          (d) => d.product.beforePrice, columnIndex, ascending),
+                          (d) => d.product.afterPrice, columnIndex, ascending),
                     ),
                     DataColumn2(
-                      label: Center(child: Text('Vendor')),
+                      label: Center(child: Text('Created at')),
                       numeric: true,
-                      onSort: (columnIndex, ascending) => sort<String>(
-                          (d) => d.product.productId, columnIndex, ascending),
+                      onSort: (columnIndex, ascending) => sort<DateTime>(
+                          (d) => d.product.publishedAt, columnIndex, ascending),
                     ),
                     // DataColumn2(
                     //   label: Center(child: Text('actions')),
@@ -382,13 +383,57 @@ class DTS extends DataTableSource {
             ),
           ),
           DataCell(
-            Center(child: Text(product.product.description)),
+            Center(child: Text(product.product.status)),
           ),
           DataCell(
-            Center(child: Text(product.product.beforePrice.toString())),
+            Center(child: Row(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                product.product.afterPrice == product.product.beforePrice
+                    ? Text(
+                  '${product.product.afterPrice.toString()} EGP',
+                  style: FlutterFlowTheme.bodyText1.override(
+                    fontFamily: 'Poppins',
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xff51c0a9),
+                  ),
+                )
+                    : Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '${product.product.beforePrice.toString()}',
+                      style: TextStyle(
+                        decoration: TextDecoration.lineThrough,
+                        color: Colors.black26,
+                        fontSize: 18,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          left: 8.0, bottom: 4.0),
+                      child: Text(
+                        '${product.product.afterPrice.toString()}',
+                        style:
+                        FlutterFlowTheme.bodyText1.override(
+                          fontFamily: 'Poppins',
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.red,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            ),),
           ),
           DataCell(
-            Center(child: Text(product.product.productId)),
+            Center(child: Text(DateFormat.yMMMMd('en_US').format(product.product.publishedAt))),
           ),
           // DataCell(
           //   Center(
